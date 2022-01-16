@@ -43,17 +43,19 @@ func (rs *EventStore) Listen(evtType string, listener interface{}) {
 	rs.listeners[evtType] = append(rs.listeners[evtType], listener)
 }
 
-func (rs *EventStore) Publish(evt event.Event) {
+func (rs *EventStore) Publish(evt event.Event) error {
 	data, err := encode(evt.Event)
 	if err != nil {
 		rs.logger.With(evt).Errorf("encode event failed: %v", err)
-		return
+		return err
 	}
 
 	if err := rs.client.LPush(rs.queueName, fmt.Sprintf("%s,%s", evt.Name, string(data))).Err(); err != nil {
 		rs.logger.With(evt).Errorf("push event data to redis failed: %v", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func (rs *EventStore) SetManager(manager event.Manager) {

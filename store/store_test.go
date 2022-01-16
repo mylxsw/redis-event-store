@@ -2,7 +2,6 @@ package store_test
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -28,13 +27,19 @@ func TestEventStore(t *testing.T) {
 	evtStore.Register(SystemUpDownEvent{})
 
 	evt := event.Event{
-		Name:  fmt.Sprintf("%s", reflect.TypeOf(SystemUpDownEvent{})),
+		Name:  reflect.TypeOf(SystemUpDownEvent{}).String(),
 		Event: SystemUpDownEvent{Name: "up"},
 	}
 
-	evtStore.Publish(evt)
-	evtStore.Publish(evt)
-	evtStore.Publish(evt)
+	if err := evtStore.Publish(evt); err != nil {
+		panic(err)
+	}
+	if err := evtStore.Publish(evt); err != nil {
+		panic(err)
+	}
+	if err := evtStore.Publish(evt); err != nil {
+		panic(err)
+	}
 
 	evtStore.Listen(evt.Name, func(ev SystemUpDownEvent) {
 		logger.Debugf("new event received: %v", ev)
